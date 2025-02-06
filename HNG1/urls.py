@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import classify_number
+from . import views
 
 urlpatterns = [
-    path('api/classify-number', classify_number),
+    path('classify-number', views.classify_number, name='classify_number'),
 ]
