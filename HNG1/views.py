@@ -8,7 +8,7 @@ def classify_number(request):
 
     # Input validation
     if not number:
-        return JsonResponse({"number": "Invalid input", "error": True}, status=400)
+        return JsonResponse({"error": True}, status=400)
     
     try:
         # Try converting to a float to catch decimals
