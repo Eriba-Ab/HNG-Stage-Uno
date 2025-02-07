@@ -8,7 +8,7 @@ def classify_number(request):
 
     # Input validation
     if not number:
-        return JsonResponse({"error": True}, status=400)
+        return JsonResponse({"number": "alphabet", "error": True}, status=400)
     
     try:
         # Try converting to a float to catch decimals
@@ -20,10 +20,6 @@ def classify_number(request):
 
         # Convert to integer
         num_int = int(num_float)
-
-        # Check for negative numbers
-        if num_int < 0:
-            return JsonResponse({"number": "negative", "error": True}, status=400)
 
     except ValueError:
         # Handle alphabets or other non-numeric inputs
