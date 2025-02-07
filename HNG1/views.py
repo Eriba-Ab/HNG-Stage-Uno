@@ -51,7 +51,4 @@ def classify_number(request):
     }
 
     # Return the response
-    return HttpResponse(
-        str(response_data).replace("'", '"'),  # Mimic JSON format
-        content_type="application/json"
-    )
+    return JsonResponse(response_data)
