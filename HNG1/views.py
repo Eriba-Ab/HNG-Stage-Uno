@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import HttpResponse
 from rest_framework.decorators import api_view
 import requests
 
@@ -8,59 +8,31 @@ def classify_number(request):
 
     # Input validation
     if not number:
-        return JsonResponse({"number": "alphabet", "error": True}, status=400)
-    
+        return HttpResponse('{"number": "Invalid input", "error": true}', content_type="application/json", status=400)
+
     try:
-        # Try converting to a float to catch decimals
-        num_float = float(number)
-
-        # Check for decimals
-        if not num_float.is_integer():
-            return JsonResponse({"number": "decimal", "error": True}, status=400)
-
-        # Convert to integer
-        num_int = int(num_float)
-
+        # Attempt to parse the input into an integer
+        num_int = int(number)
     except ValueError:
-        # Handle alphabets or other non-numeric inputs
-        return JsonResponse({"number": "alphabet", "error": True}, status=400)
+        # Handle non-numeric inputs
+        return HttpResponse('{"number": "alphabet", "error": true}', content_type="application/json", status=400)
 
     # Prime check
     def is_prime(n):
         if n <= 1:
             return False
-        for i in range(2, int(n ** 0.5) + 1):
+        for i in range(2, int(abs(n) ** 0.5) + 1):
             if n % i == 0:
                 return False
         return True
 
-    # Perfect number check
-    def is_perfect(n):
-        if n < 2:
-            return False
-        divisors_sum = sum([i for i in range(1, n // 2 + 1) if n % i == 0])
-        return divisors_sum == n
-
     # Armstrong number check
     def is_armstrong(n):
-        num_str = str(n)
+        num_str = str(abs(n))  # Use absolute value for Armstrong check
         return n == sum(int(digit) ** len(num_str) for digit in num_str)
 
     # Calculate digit sum
-    digit_sum = sum(int(d) for d in str(num_int))
-
-    # Properties
-    properties = []
-    if is_prime(num_int):
-        properties.append("prime")
-    if is_perfect(num_int):
-        properties.append("perfect")
-    if is_armstrong(num_int):
-        properties.append("armstrong")
-    if num_int % 2 == 0:
-        properties.append("even")
-    else:
-        properties.append("odd")
+    digit_sum = sum(int(d) for d in str(abs(num_int)))  # Sum of digits for absolute value
 
     # Fetching fun fact from Numbers API
     try:
@@ -69,12 +41,17 @@ def classify_number(request):
     except:
         fun_fact = "No fun fact available"
 
-    # JSON response
-    return JsonResponse({
+    # Constructing the response
+    response_data = {
         "number": num_int,
         "is_prime": is_prime(num_int),
-        "is_perfect": is_perfect(num_int),
-        "properties": properties,
-        "digit_sum": digit_sum,
-        "fun_fact": fun_fact
-    }, status=200)
+        "is_armstrong": is_armstrong(num_int),
+        "digit_sum": digit_sum,  # sum of its digits
+        "fun_fact": fun_fact  # gotten from the Numbers API
+    }
+
+    # Return the response
+    return HttpResponse(
+        str(response_data).replace("'", '"'),  # Mimic JSON format
+        content_type="application/json"
+    )
